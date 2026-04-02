@@ -12,6 +12,13 @@
 #define GATE_CLOSED_ANGLE 0
 #define GATE_OPEN_ANGLE   90
 
+// Servo Pivot
+#define PIVOT_SERVO_PIN 19
+
+#define PIVOT_STOP      90
+#define PIVOT_CW        120 
+#define PIVOT_CCW       60
+
 
 // Multiplexeur
 #define MUX_SIG_PIN  36

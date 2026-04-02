@@ -1,8 +1,12 @@
 #include "SystemManager.h"
 #include "GateServoManager.h"
 
-SystemManager::SystemManager(SensorManager& sensorMgr, GateServoManager& gateMgr)
-    : sensorManager(sensorMgr), gateManager(gateMgr) {}
+SystemManager::SystemManager(SensorManager& sensorMgr,
+                             GateServoManager& gateMgr,
+                             PivotServoManager& pivotMgr)
+    : sensorManager(sensorMgr),
+      gateManager(gateMgr),
+      pivotManager(pivotMgr) {}
 
 void SystemManager::begin() {
     // Rien pour l'instant
