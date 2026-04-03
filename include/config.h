@@ -1,5 +1,12 @@
 #pragma once
 
+// Module RFID
+#define PIN_RFID_RST      39
+#define PIN_SPI_MISO      12
+#define PIN_SPI_MOSI      13
+#define PIN_SPI_SCK       14
+#define PIN_RFID_CS       5
+
 // Capteurs IR
 #define IR_SENSOR_ENTRY_PIN 34
 #define IR_SENSOR_EXIT_PIN  35
