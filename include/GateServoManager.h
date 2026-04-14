@@ -1,9 +1,15 @@
 #pragma once
 #include <Arduino.h>
 #include <ESP32Servo.h>
-#include "Config.h"
+#include "config.h"
 
 class GateServoManager {
+private:
+    Servo gateServo;
+    int currentAngle;
+
+    void moveSmooth(int targetAngle);
+
 public:
     GateServoManager();
 
@@ -11,9 +17,4 @@ public:
     void openGate();
     void closeGate();
 
-private:
-    Servo gateServo;
-    int currentAngle;
-
-    void moveSmooth(int targetAngle);
 };

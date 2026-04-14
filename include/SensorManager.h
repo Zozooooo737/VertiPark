@@ -18,5 +18,5 @@ public:
     bool isHallTriggered();
 
 private:
-    int readMux(uint8_t channel);
+    int readMuxChannel(uint8_t channel);
 };
