@@ -8,8 +8,9 @@ RFIDManager::RFIDManager() : mfrc522(PIN_RFID_CS, PIN_RFID_RST) {
 
 void RFIDManager::begin() {
     // Initialisation du bus SPI avec tes pins personnalisées du config.h
-    SPI.begin(PIN_SPI_SCK, PIN_SPI_MISO, PIN_SPI_MOSI);
     mfrc522.PCD_Init();
+    digitalWrite(PIN_RFID_CS, HIGH);
+    SPI.endTransaction();
     Serial.println(F("RFID: Initialisé (Bus SPI sur D14)"));
 }
 

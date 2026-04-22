@@ -4,6 +4,7 @@
 #include "SensorManager.h"
 #include "GateServoManager.h"
 #include "PivotServoManager.h"
+#include "DisplayManager.h"
 
 class HardwareTest {
 private:
@@ -11,14 +12,16 @@ private:
     SensorManager& _sensors;
     GateServoManager& _gate;
     PivotServoManager& _pivot;
+    DisplayManager& _display;
 
 public:
-    HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot);
+    HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display);
     
     void runRFIDTest();
     void runIRTest();
     void runGateTest();
     void runPivotTest();
+    void runDisplayTest();
 
     void runFullDiagnostic();
 };

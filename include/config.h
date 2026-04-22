@@ -23,6 +23,17 @@
 #define PIVOT_CW        120 
 #define PIVOT_CCW       60
 
+// Afficheur OLED (SPI Hardware partagé)
+#define OLED_CS    15
+#define OLED_DC    26
+#define OLED_RES   27
+#define OLED_SCK   14
+#define OLED_MOSI  13
+
+#define SCREEN_WIDTH 128
+#define SCREEN_HEIGHT 64
+#define BLUE_ZONE_START 16
+
 
 // Multiplexeur
 #define MUX_SIG_PIN  36
