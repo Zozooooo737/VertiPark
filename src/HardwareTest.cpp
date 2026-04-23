@@ -1,7 +1,7 @@
 #include "HardwareTest.h"
 
-HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display, BuzzerManager& buzzer) 
-    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display), _buzzer(buzzer) {}
+HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display, BuzzerManager& buzzer, DHTManager& temp) 
+    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display), _buzzer(buzzer), _temp(temp) {}
 
 void HardwareTest::runFullDiagnostic() {
     Serial.println(F("\n--- DÉBUT DU TEST MATÉRIEL ---"));
@@ -17,6 +17,8 @@ void HardwareTest::runFullDiagnostic() {
     runDisplayTest();
     delay(500);
     runBuzzerTest();
+    delay(500);
+    runDHTTest();
     delay(500);
 
     Serial.println(F("\n--- FIN DU TEST ---"));
@@ -176,4 +178,21 @@ void HardwareTest::runBuzzerTest() {
     delay(800);
 
     Serial.println(F("[TEST BUZZER] : Terminé."));
+}
+
+void HardwareTest::runDHTTest() {
+    Serial.println(F("\n[TEST DHT22] : Lecture des données..."));
+    
+    // Le DHT22 est lent, on attend un peu pour la première lecture
+    delay(2000); 
+
+    float t = _temp.getTemperature();
+    float h = _temp.getHumidity();
+
+    if (t != -999.0) {
+        Serial.printf("  - Température : %.1f °C\n", t);
+        Serial.printf("  - Humidité    : %.1f %%\n", h);
+    } else {
+        Serial.println(F("  - Erreur : Capteur non détecté ou lecture échouée."));
+    }
 }

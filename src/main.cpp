@@ -8,8 +8,9 @@ GateServoManager gate;
 PivotServoManager pivot;
 DisplayManager display;
 BuzzerManager buzzer;
+DHTManager temp;
 
-HardwareTest tester(rfid, sensors, gate, pivot, display, buzzer);
+HardwareTest tester(rfid, sensors, gate, pivot, display, buzzer, temp);
 
 void setup() {
     Serial.begin(115200);
@@ -34,6 +35,7 @@ void setup() {
     pivot.begin();
     sensors.begin();
     buzzer.begin();
+    temp.begin();
     Serial.println("Systeme pret !");
 }
 

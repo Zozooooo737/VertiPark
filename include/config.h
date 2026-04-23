@@ -37,6 +37,9 @@
 // Buzzer
 #define BUZZER_PIN 33
 
+// DHT22
+#define DHT_PIN 16
+#define DHT_TYPE DHT22
 
 // Multiplexeur
 #define MUX_SIG_PIN  36
