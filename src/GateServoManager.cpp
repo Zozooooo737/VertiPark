@@ -7,14 +7,19 @@ GateServoManager::GateServoManager() {
 void GateServoManager::begin() {
     gateServo.attach(GATE_SERVO_PIN);
     gateServo.write(currentAngle);
+    gateServo.detach();
 }
 
 void GateServoManager::openGate() {
+    gateServo.attach(GATE_SERVO_PIN);
     moveSmooth(GATE_OPEN_ANGLE);
+    gateServo.detach();
 }
 
 void GateServoManager::closeGate() {
+    gateServo.attach(GATE_SERVO_PIN); 
     moveSmooth(GATE_CLOSED_ANGLE);
+    gateServo.detach();
 }
 
 void GateServoManager::moveSmooth(int targetAngle) {
