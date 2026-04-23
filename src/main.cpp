@@ -7,12 +7,13 @@ SensorManager sensors;
 GateServoManager gate;
 PivotServoManager pivot;
 DisplayManager display;
+BuzzerManager buzzer;
 
-HardwareTest tester(rfid, sensors, gate, pivot, display);
+HardwareTest tester(rfid, sensors, gate, pivot, display, buzzer);
 
 void setup() {
     Serial.begin(115200);
-    delay(1000); // Laisse le temps au port série de se connecter
+    delay(1000);
     Serial.println("Initialisation du bus SPI...");
 
     // 1. Désactive les CS immédiatement avant toute chose
@@ -32,6 +33,7 @@ void setup() {
     gate.begin();
     pivot.begin();
     sensors.begin();
+    buzzer.begin();
     Serial.println("Systeme pret !");
 }
 

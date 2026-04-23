@@ -12,6 +12,7 @@ public:
     void rotateCW();
     void rotateCCW();
     void stop();
+    void detach();
 
 private:
     Servo pivotServo;

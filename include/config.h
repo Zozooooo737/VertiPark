@@ -34,6 +34,9 @@
 #define SCREEN_HEIGHT 64
 #define BLUE_ZONE_START 16
 
+// Buzzer
+#define BUZZER_PIN 33
+
 
 // Multiplexeur
 #define MUX_SIG_PIN  36

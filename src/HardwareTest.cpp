@@ -1,7 +1,7 @@
 #include "HardwareTest.h"
 
-HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display) 
-    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display) {}
+HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display, BuzzerManager& buzzer) 
+    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display), _buzzer(buzzer) {}
 
 void HardwareTest::runFullDiagnostic() {
     Serial.println(F("\n--- DÉBUT DU TEST MATÉRIEL ---"));
@@ -15,6 +15,9 @@ void HardwareTest::runFullDiagnostic() {
     runPivotTest();
     delay(500);
     runDisplayTest();
+    delay(500);
+    runBuzzerTest();
+    delay(500);
 
     Serial.println(F("\n--- FIN DU TEST ---"));
 }
@@ -156,4 +159,21 @@ void HardwareTest::runDisplayTest() {
     delay(2000);
 
     Serial.println(F("[TEST OLED] : Séquence terminée."));
+}
+
+void HardwareTest::runBuzzerTest() {
+    Serial.println(F("\n[TEST BUZZER] : Séquence sonore..."));
+    Serial.println(F("  - Son : SUCCESS (Aigu)"));
+    _buzzer.playSuccess();
+    delay(800);
+
+    Serial.println(F("  - Son : ERROR (Grave)"));
+    _buzzer.playError();
+    delay(800);
+
+    Serial.println(F("  - Son : ALERT (Triple bip)"));
+    _buzzer.playAlert();
+    delay(800);
+
+    Serial.println(F("[TEST BUZZER] : Terminé."));
 }
