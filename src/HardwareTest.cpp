@@ -1,25 +1,28 @@
 #include "HardwareTest.h"
 
-HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display, BuzzerManager& buzzer, DHTManager& temp) 
-    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display), _buzzer(buzzer), _temp(temp) {}
+HardwareTest::HardwareTest(RFIDManager& rfid, SensorManager& sensors, GateServoManager& gate, PivotServoManager& pivot, DisplayManager& display, BuzzerManager& buzzer, DHTManager& temp, LedsManager& leds) 
+    : _rfid(rfid), _sensors(sensors), _gate(gate), _pivot(pivot), _display(display), _buzzer(buzzer), _temp(temp), _leds(leds) {}
 
 void HardwareTest::runFullDiagnostic() {
     Serial.println(F("\n--- DÉBUT DU TEST MATÉRIEL ---"));
     
     runRFIDTest();
-    delay(500);
-    runIRTest();
-    delay(500);
-    runGateTest();
-    delay(500);
-    runPivotTest();
-    delay(500);
+    //delay(500);
+    //runIRTest();
+    // delay(500);
+    //runHallTest();
+    // delay(500);
+    //runGateTest();
+    // delay(500);
+    //runPivotTest();
+    // delay(500);
     runDisplayTest();
-    delay(500);
+    // delay(500);
     runBuzzerTest();
-    delay(500);
+    // delay(500);
     runDHTTest();
-    delay(500);
+    // delay(500);
+    runLedsTest();
 
     Serial.println(F("\n--- FIN DU TEST ---"));
 }
@@ -54,6 +57,21 @@ void HardwareTest::runIRTest() {
         Serial.printf("  - Entrée : %s | Sortie : %s\n", 
                       in ? "Voiture détectée" : "Rien", 
                       out ? "Voiture détectée" : "Rien");
+        delay(500);
+    }
+}
+
+void HardwareTest::runHallTest() {
+    Serial.println(F("\n[TEST CAPTEUR EFFET HALL] :"));
+    Serial.println(F("Approchez un aimant du capteur pour tester..."));
+    
+    unsigned long t = millis();
+    while (millis() - t < 5000) {
+        bool triggered = _sensors.isHallTriggered();
+        
+        Serial.printf("  - Capteur HALL : %s\n", 
+                      triggered ? "Aimant DETECTE [Alerte]" : "Pas d'aimant [RAS]");
+        
         delay(500);
     }
 }
@@ -195,4 +213,51 @@ void HardwareTest::runDHTTest() {
     } else {
         Serial.println(F("  - Erreur : Capteur non détecté ou lecture échouée."));
     }
+}
+
+void HardwareTest::runLedsTest() {
+    Serial.println(F("\n[TEST DES LEDS DE PLACES (74HC595 + NOT)] :"));
+    
+    // Initialisation du manager de LED au cas où
+    _leds.begin();
+
+    Serial.println(F("1. Libération de toutes les places (Toutes les LEDs doivent être VERTES)"));
+    _leds.setAllPlacesFree();
+    delay(3000);
+
+    Serial.println(F("2. Occupation de toutes les places (Toutes les LEDs doivent être ROUGES)"));
+    _leds.setAllPlacesOccupied();
+    delay(3000);
+
+    Serial.println(F("3. Test chenillard place par place (Passage au ROUGE)"));
+    _leds.setAllPlacesFree(); // On remet tout en vert
+    delay(1000);
+
+    for (int i = 0; i < NUM_PLACES; i++) {
+        Serial.printf("   -> Place %d OCCUPÉE (Rouge)\n", i + 1);
+        _leds.setPlaceStatus(i, true); // Devient rouge
+        delay(1000);
+    }
+    
+    // =================================================================
+    // NOUVEAU : AJOUT DU TEST DES LEDS D'AMBIANCE (BLEUE & ORANGE)
+    // =================================================================
+    Serial.println(F("\n[TEST DES LEDS D'AMBIANCE / UTILISATEUR (Direct ESP32)] :"));
+
+    Serial.println(F("4. Activation de la LED BLEUE seule (Orange éteinte)"));
+    _leds.setBlueLed(true);
+    _leds.setOrangeLed(false);
+    delay(2000);
+
+    Serial.println(F("5. Activation de la LED ORANGE seule (Bleue éteinte)"));
+    _leds.setBlueLed(false);
+    _leds.setOrangeLed(true);
+    delay(2000);
+
+    // Nettoyage final : on éteint les LEDs d'ambiance
+    _leds.setBlueLed(false);
+    _leds.setOrangeLed(false);
+
+    Serial.println(F("\nFin du test des LEDs. Remise à l'état libre."));
+    _leds.setAllPlacesFree();
 }

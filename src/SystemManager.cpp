@@ -17,8 +17,6 @@ void SystemManager::process() {
     Serial.println("--------------------");
     Serial.print("Entrée : "); Serial.println(sensorManager.isCarAtEntry());
     Serial.print("Sortie : "); Serial.println(sensorManager.isCarAtExit());
-    Serial.print("Light1 : "); Serial.println(sensorManager.getLight(0));
-    Serial.print("Light2 : "); Serial.println(sensorManager.getLight(1));
     Serial.print("Air Quality : "); Serial.println(sensorManager.getAirQuality());
     Serial.print("Hall : "); Serial.println(sensorManager.isHallTriggered());
     Serial.println("--------------------");

@@ -1,22 +1,41 @@
 #include "DisplayManager.h"
+#include <SPI.h>
 
-// On utilise les noms définis dans config.h
+// On réutilise les constantes de tes pins (ajuste les noms selon ton config.h si besoin)
+#define OLED_CS   15
+#define OLED_DC   26
+#define OLED_RES  27
+#define PIN_SPI_SCK  14
+#define PIN_SPI_MOSI 13
+
+// Constructeur Hardware SPI d'origine (Validé)
 DisplayManager::DisplayManager() : u8g2(U8G2_R0, OLED_CS, OLED_DC, OLED_RES) {}
 
 void DisplayManager::begin() {
-    // On initialise le bus SPI avec les pins partagées
-    // SCK=14, MISO=-1 (car pas besoin pour l'OLED), MOSI=13, CS=15
+    // 1. Configuration des broches de contrôle
+    pinMode(OLED_CS, OUTPUT);
+    pinMode(OLED_DC, OUTPUT);
+    pinMode(OLED_RES, OUTPUT);
     
-    digitalWrite(OLED_CS, LOW);
-    u8g2.begin();
-    digitalWrite(OLED_CS, HIGH);
-    oledClear(); // Optionnel : démarre sur un écran propre
+    // 2. Reset matériel indispensable pour réveiller l'écran
+    digitalWrite(OLED_RES, LOW);
+    delay(100);
+    digitalWrite(OLED_RES, HIGH);
+    delay(100);
+
+    // 3. ATTENTION : PAS DE SPI.begin() ICI ! 
+    // On laisse le SPI.begin() global du setup() gérer le bus.
+
+    // 4. Initialisation native de l'écran
+    u8g2.begin();                
+    
+    oledClear();
+    oledUpdate();
+    Serial.println(F("OLED: Initialisé de maniere partagée."));
 }
 
-// --- OUTILS INTERNES ---
-
 int DisplayManager::getCenteredX(const char* text) {
-    return (SCREEN_WIDTH - u8g2.getStrWidth(text)) / 2;
+    return (128 - u8g2.getStrWidth(text)) / 2;
 }
 
 int DisplayManager::splitLines(const char* text, const char* lines[], int maxLines) {
@@ -25,7 +44,7 @@ int DisplayManager::splitLines(const char* text, const char* lines[], int maxLin
     const char* ptr = text;
     while (*ptr && count < maxLines) {
         if (*ptr == '\n') {
-            static char buffers[10][64]; // Pool de buffers pour éviter les problèmes de portée
+            static char buffers[10][64];
             int len = ptr - start;
             if (len > 63) len = 63;
             strncpy(buffers[count], start, len);
@@ -39,12 +58,16 @@ int DisplayManager::splitLines(const char* text, const char* lines[], int maxLin
     if (count < maxLines && start < ptr) {
         static char lastBuffer[64];
         int len = ptr - start;
+        if (len > 63) len = 63;
         strncpy(lastBuffer, start, len);
         lastBuffer[len] = '\0';
         lines[count++] = lastBuffer;
     }
     return count;
 }
+
+void DisplayManager::oledClear()  { u8g2.clearBuffer(); }
+void DisplayManager::oledUpdate() { u8g2.sendBuffer(); }
 
 void DisplayManager::oledPrintTitle(const char* text) {
     u8g2.setFont(u8g2_font_ncenB14_tr);
@@ -67,7 +90,7 @@ void DisplayManager::oledPrintTextLines(const char* text, int bigLineIndex) {
         totalHeight += lineHeights[i] + lineSpacing;
     }
 
-    int y = BLUE_ZONE_START + ((SCREEN_HEIGHT - BLUE_ZONE_START) - totalHeight) / 2;
+    int y = 16 + ((64 - 16) - totalHeight) / 2;
     for (int i = 0; i < nLines; i++) {
         u8g2.setFont((i == bigLineIndex) ? u8g2_font_ncenB14_tr : u8g2_font_ncenB08_tr);
         int x = getCenteredX(lines[i]);
@@ -77,23 +100,14 @@ void DisplayManager::oledPrintTextLines(const char* text, int bigLineIndex) {
     }
 }
 
-void DisplayManager::oledDrawZoneFrames() {
-    u8g2.drawFrame(0, BLUE_ZONE_START, SCREEN_WIDTH, SCREEN_HEIGHT - BLUE_ZONE_START);
-}
-
-void DisplayManager::oledClear() { u8g2.clearBuffer(); }
-void DisplayManager::oledUpdate() { u8g2.sendBuffer(); }
-
-// --- FONCTIONS D'AFFICHAGE ---
-
 void DisplayManager::oledBootAnimation() {
-    for (int i = 0; i <= 128; i += 4) {
+    for (int i = 0; i <= 128; i += 8) {
         oledClear();
         oledPrintTitle("VERTIPARK");
-        u8g2.drawFrame(0, 40, 128, 10);
-        u8g2.drawBox(0, 40, i, 10);
+        u8g2.drawFrame(0, 42, 128, 10);
+        u8g2.drawBox(0, 42, i, 10);
         oledUpdate();
-        delay(20);
+        delay(30);
     }
 }
 
@@ -104,6 +118,11 @@ void DisplayManager::oledIdleScreen(int places) {
     oledPrintTitle("VERTIPARK");
     oledPrintTextLines(text, 1);
     oledUpdate();
+}
+
+void DisplayManager::oledDrawZoneFrames() {
+    // Dessine un cadre rectangulaire pour délimiter la zone de texte (bas de l'écran)
+    u8g2.drawFrame(0, 16, 128, 64 - 16); 
 }
 
 void DisplayManager::oledNewsScreen(const char* h, const char* d, const char* t, const char* hu) {
@@ -180,14 +199,4 @@ void DisplayManager::oledAccessDenied() {
 void DisplayManager::oledShowWebsite() {
     oledClear(); oledPrintTitle("INFO");
     oledPrintTextLines("Plus d'infos ici :\nwww.vertipark.fr", -1); oledUpdate();
-}
-
-void DisplayManager::oledAdminWaitCard() {
-    oledClear(); oledPrintTitle("ADMIN");
-    oledPrintTextLines("Presenter carte...", -1); oledUpdate();
-}
-
-void DisplayManager::oledAdminResetOK() {
-    oledClear(); oledPrintTitle("ADMIN");
-    oledPrintTextLines("Carte reset", -1); oledUpdate();
 }

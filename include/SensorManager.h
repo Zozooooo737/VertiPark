@@ -10,11 +10,8 @@ public:
 
     bool isCarAtEntry();
     bool isCarAtExit();
-
-    int getLight(uint8_t index);
-
+    
     float getAirQuality();
-
     bool isHallTriggered();
 
 private:

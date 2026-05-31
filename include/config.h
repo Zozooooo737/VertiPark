@@ -12,8 +12,8 @@
 // Servomoteur Barrière
 #define GATE_SERVO_PIN 18
 
-#define GATE_CLOSED_ANGLE 0
-#define GATE_OPEN_ANGLE   90
+#define GATE_CLOSED_ANGLE 30
+#define GATE_OPEN_ANGLE   100
 
 // Servo Pivot
 #define PIVOT_SERVO_PIN 19
@@ -45,11 +45,21 @@
 #define MUX_SIG_PIN  36
 #define MUX_SEL0_PIN 4
 #define MUX_SEL1_PIN 2
-#define MUX_SEL2_PIN 32
 
+// Canaux du Multiplexeur
 #define MUX_IR_ENTRY_CHANNEL    0
 #define MUX_IR_EXIT_CHANNEL     1
-#define MUX_AIR_QUALITY_CHANNEL 2
-#define MUX_HALL_CHANNEL        3
-#define MUX_LIGHT1_CHANNEL      4
-#define MUX_LIGHT2_CHANNEL      5
+#define MUX_HALL_CHANNEL        2
+#define MUX_AIR_QUALITY_CHANNEL 3
+
+// Nombre de places du parking
+#define NUM_PLACES           7
+
+// Broches du Registre à Décalage 74HC595
+#define SHIFT_REG_DATA_PIN   21  // DS (Serial Data)
+#define SHIFT_REG_LATCH_PIN  22  // ST_CP (Latch/Store)
+#define SHIFT_REG_CLOCK_PIN  23  // SH_CP (Clock)
+
+// Led Ambiance
+#define PIN_LED_BLUE   17
+#define PIN_LED_ORANGE 32

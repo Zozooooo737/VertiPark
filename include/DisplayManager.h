@@ -8,7 +8,7 @@ class DisplayManager {
 private:
     // Utilisation du constructeur SPI matériel validé
     U8G2_SSD1306_128X64_NONAME_F_4W_HW_SPI u8g2;
-
+    
     // Outils internes
     int getCenteredX(const char* text);
     int splitLines(const char* text, const char* lines[], int maxLines);
@@ -42,6 +42,4 @@ public:
     void oledAccessGranted();
     void oledAccessDenied();
     void oledShowWebsite();
-    void oledAdminWaitCard();
-    void oledAdminResetOK();
 };

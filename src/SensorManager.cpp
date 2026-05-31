@@ -5,40 +5,45 @@ SensorManager::SensorManager() {}
 void SensorManager::begin() {
     pinMode(MUX_SEL0_PIN, OUTPUT);
     pinMode(MUX_SEL1_PIN, OUTPUT);
-    pinMode(MUX_SEL2_PIN, OUTPUT);
     
     pinMode(MUX_SIG_PIN, INPUT);
 }
 
 bool SensorManager::isCarAtEntry() {
-    return readMuxChannel(MUX_IR_ENTRY_CHANNEL) > IR_THRESHOLD;
+    int rawValue = readMuxChannel(MUX_IR_ENTRY_CHANNEL);
+    
+    // Affichage dans le moniteur série
+    Serial.print("IR Entree - Valeur brute : ");
+    Serial.println(rawValue);
+    
+    return rawValue > IR_THRESHOLD;
 }
 
 bool SensorManager::isCarAtExit() {
-    return readMuxChannel(MUX_IR_EXIT_CHANNEL) > IR_THRESHOLD;
-}
-
-int SensorManager::getLight(uint8_t index) {
-    if(index == 0) return readMuxChannel(MUX_LIGHT1_CHANNEL);
-    if(index == 1) return readMuxChannel(MUX_LIGHT2_CHANNEL);
-    return -1;
-}
-
-float SensorManager::getAirQuality() {
-    int raw = readMuxChannel(MUX_AIR_QUALITY_CHANNEL);
-    return raw;
+    int rawValue = readMuxChannel(MUX_IR_EXIT_CHANNEL);
+    
+    // Affichage dans le moniteur série
+    Serial.print("IR Sortie - Valeur brute : ");
+    Serial.println(rawValue);
+    
+    return rawValue > IR_THRESHOLD;
 }
 
 bool SensorManager::isHallTriggered() {
     int val = readMuxChannel(MUX_HALL_CHANNEL);
-    return val == HIGH;
+    return val == LOW; 
+}
+
+float SensorManager::getAirQuality() {
+    int raw = readMuxChannel(MUX_AIR_QUALITY_CHANNEL);
+    return (float)raw;
 }
 
 int SensorManager::readMuxChannel(uint8_t channel) {
     digitalWrite(MUX_SEL0_PIN, channel & 0x01);
     digitalWrite(MUX_SEL1_PIN, (channel >> 1) & 0x01);
-    digitalWrite(MUX_SEL2_PIN, (channel >> 2) & 0x01);
 
     delayMicroseconds(5);
+    
     return analogRead(MUX_SIG_PIN);
 }
