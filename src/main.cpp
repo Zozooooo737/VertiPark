@@ -1,7 +1,10 @@
 #include <Arduino.h>
 #include <SPI.h>
 #include "config.h"
-
+#include <WiFi.h>
+#include <HTTPClient.h>
+#include <ArduinoJson.h>
+#include <MFRC522.h>
 // ==== Managers ====
 #include "RFIDManager.h"
 #include "SensorManager.h"
