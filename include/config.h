@@ -219,10 +219,10 @@ const String serverUrl = "http://172.20.10.2/vertipark/api";
 // -----------------------------------------------------------------------------
 // VARIABLES A MODIFIER LORS DE L'ACTIVATION BACKEND :
 // -----------------------------------------------------------------------------
-#define WIFI_SSID               "VOTRE_SSID"          // A MODIFIER
-#define WIFI_PASSWORD           "VOTRE_MOT_DE_PASSE"  // A MODIFIER
+#define WIFI_SSID               "iPhone de Mattia"      // A MODIFIER
+#define WIFI_PASSWORD           "67676767"  // A MODIFIER
 
-#define API_SERVER_HOST         "192.168.1.100"       // A MODIFIER (IP serveur PHP)
+#define API_SERVER_HOST         "172.20.10.2"       // A MODIFIER (IP serveur PHP)
 #define API_SERVER_PORT         80
 #define API_BASE_PATH           "/vertipark/api"
 
