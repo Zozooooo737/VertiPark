@@ -7,6 +7,14 @@
 // Le code applicatif ne doit JAMAIS contenir de valeurs magiques.
 // =============================================================================
 
+// ==========================================
+// CONFIGURATION RÉSEAU (À modifier pour demain)
+// ==========================================
+const char* ssid = "iPhone de Mattia"; 
+const char* password = "67676767";
+// Remplace par l'IP de ton PC. Garde bien le /vertipark/api à la fin !
+const String serverUrl = "http://172.20.10.2/vertipark/api";
+
 
 // =============================================================================
 //                              MODE DEBUG
