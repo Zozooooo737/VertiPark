@@ -1,38 +1,137 @@
 #include "GateServoManager.h"
 
-GateServoManager::GateServoManager() {
-    currentAngle = GATE_CLOSED_ANGLE;
-}
+// =============================================================================
+//             GATE SERVO MANAGER - IMPLEMENTATION (non-bloquant)
+// =============================================================================
 
+GateServoManager::GateServoManager()
+    : _attached(false),
+      _state(GATE_S_CLOSED),
+      _currentAngle(GATE_CLOSED_ANGLE),
+      _targetAngle(GATE_CLOSED_ANGLE),
+      _lastStep(0) {}
+
+// -----------------------------------------------------------------------------
 void GateServoManager::begin() {
-    gateServo.attach(GATE_SERVO_PIN);
-    gateServo.write(currentAngle);
-    gateServo.detach();
+    attachServo();
+    _servo.write(GATE_CLOSED_ANGLE);
+    _currentAngle = GATE_CLOSED_ANGLE;
+    _targetAngle = GATE_CLOSED_ANGLE;
+    _state = GATE_S_CLOSED;
+
+    // On laisse attache un court instant pour que le servo se mette en place,
+    // puis on detache au prochain update().
+    _lastStep = millis();
+
+#if LOG_LEVEL >= 1
+    Serial.println(F("[GATE] Initialisee, barriere fermee."));
+#endif
 }
 
+// -----------------------------------------------------------------------------
+void GateServoManager::update(uint32_t now) {
+    // ---- Detach automatique en repos ----
+    if ((_state == GATE_S_CLOSED || _state == GATE_S_OPEN) && _attached) {
+        if (now - _lastStep >= 200) {
+            detachServo();
+        }
+        return;
+    }
+
+    // ---- Avancement progressif ----
+    if (_state == GATE_S_OPENING || _state == GATE_S_CLOSING) {
+        if (now - _lastStep < GATE_STEP_INTERVAL_MS) return;
+        _lastStep = now;
+
+        if (!_attached) attachServo();
+
+        if (_currentAngle < _targetAngle) {
+            _currentAngle += GATE_STEP_DEG;
+            if (_currentAngle > _targetAngle) _currentAngle = _targetAngle;
+        } else if (_currentAngle > _targetAngle) {
+            _currentAngle -= GATE_STEP_DEG;
+            if (_currentAngle < _targetAngle) _currentAngle = _targetAngle;
+        }
+
+        _servo.write(_currentAngle);
+
+        // ---- Arrivee a destination ----
+        if (_currentAngle == _targetAngle) {
+            if (_state == GATE_S_OPENING) {
+                _state = GATE_S_OPEN;
+#if LOG_LEVEL >= 1
+                Serial.println(F("[GATE] Ouverte."));
+#endif
+            } else {
+                _state = GATE_S_CLOSED;
+#if LOG_LEVEL >= 1
+                Serial.println(F("[GATE] Fermee."));
+#endif
+            }
+            _lastStep = now;  // pour declencher detach apres delai
+        }
+    }
+}
+
+// -----------------------------------------------------------------------------
 void GateServoManager::openGate() {
-    gateServo.attach(GATE_SERVO_PIN);
-    moveSmooth(GATE_OPEN_ANGLE);
-    gateServo.detach();
+    if (_state == GATE_S_OPEN || _state == GATE_S_OPENING) return;
+    startMove(GATE_OPEN_ANGLE, GATE_S_OPENING);
 }
 
 void GateServoManager::closeGate() {
-    gateServo.attach(GATE_SERVO_PIN); 
-    moveSmooth(GATE_CLOSED_ANGLE);
-    gateServo.detach();
+    if (_state == GATE_S_CLOSED || _state == GATE_S_CLOSING) return;
+    startMove(GATE_CLOSED_ANGLE, GATE_S_CLOSING);
 }
 
-void GateServoManager::moveSmooth(int targetAngle) {
-    if (currentAngle < targetAngle) {
-        for (int angle = currentAngle; angle <= targetAngle; angle++) {
-            gateServo.write(angle);
-            delay(10);
-        }
-    } else {
-        for (int angle = currentAngle; angle >= targetAngle; angle--) {
-            gateServo.write(angle);
-            delay(10);
-        }
+void GateServoManager::startMove(int target, GateState movingState) {
+    _targetAngle = target;
+    _state = movingState;
+    attachServo();
+    _lastStep = 0;  // force step au prochain update
+}
+
+// -----------------------------------------------------------------------------
+bool GateServoManager::isMoving() const {
+    return (_state == GATE_S_OPENING) || (_state == GATE_S_CLOSING);
+}
+
+bool GateServoManager::isOpen() const   { return _state == GATE_S_OPEN; }
+bool GateServoManager::isClosed() const { return _state == GATE_S_CLOSED; }
+
+GateState GateServoManager::getState() const { return _state; }
+
+int GateServoManager::getProgress() const {
+    int range = GATE_OPEN_ANGLE - GATE_CLOSED_ANGLE;
+    if (range == 0) return 100;
+
+    if (_state == GATE_S_OPENING) {
+        int done = _currentAngle - GATE_CLOSED_ANGLE;
+        return (done * 100) / range;
     }
-    currentAngle = targetAngle;
+    if (_state == GATE_S_CLOSING) {
+        int done = GATE_OPEN_ANGLE - _currentAngle;
+        return (done * 100) / range;
+    }
+    if (_state == GATE_S_OPEN)   return 100;
+    return 0;
+}
+
+int GateServoManager::getCurrentAngle() const {
+    return _currentAngle;
+}
+
+// -----------------------------------------------------------------------------
+void GateServoManager::attachServo() {
+    if (!_attached) {
+        _servo.attach(GATE_SERVO_PIN);
+        _attached = true;
+    }
+}
+
+void GateServoManager::detachServo() {
+    if (_attached) {
+        _servo.detach();
+        _attached = false;
+    }
 }
