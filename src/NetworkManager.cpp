@@ -269,7 +269,7 @@ void NetworkManager::sendRfidCheck() {
             if (respDoc["access"] == true) {
                 _rfidResponse = RFID_RESP_GRANTED;
                 // S'assure que PHP renvoie bien un numero de place dans "place"
-                _rfidAssignedPlace = respDoc["place"] | 0; 
+                _rfidAssignedPlace = respDoc["place_num"] | 0;
             } else {
                 _rfidResponse = RFID_RESP_DENIED;
             }
